@@ -1,41 +1,31 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import solve_ivp
-
-def S_rhs(t, S, A, Tc):
-    dSdt = A / (2 * (Tc - t) ** 1.5)
-    return dSdt
 
 Tc = 1.0
 A = 1.0
-t_span = (0, 0.99 * Tc)
-t_eval = np.linspace(0, 0.99 * Tc, 500)
-S0 = [A / np.sqrt(Tc)]
-
-sol = solve_ivp(S_rhs, t_span, S0, t_eval=t_eval, args=(A, Tc))
-t = sol.t
-S = sol.y[0]
-
+t = np.linspace(0, 0.99*Tc, 500)
+S = A / np.sqrt(Tc - t)
+dS = A / (2 * (Tc - t)**1.5)
 ell = 1.0
-dS = A / (2 * (Tc - t) ** 1.5)
-H = ell * dS / (S ** 2 + 1e-12)
+H = ell * dS / (S**2 + 1e-12)
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-ax1.plot(t, S, 'b-', linewidth=2)
-ax1.set_xlabel('Time t')
-ax1.set_ylabel('S(t)')
-ax1.set_title('Sobolev-Stepanov norm evolution')
-ax1.grid(True)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8,8))
+ax1.plot(t, S, 'b-', linewidth=2.5)
+ax1.set_xlabel('Time t', fontsize=12)
+ax1.set_ylabel(r'$S(t)$', fontsize=12)
+ax1.set_title('Sobolev-Stepanov norm evolution', fontsize=14)
+ax1.grid(True, linestyle='--', alpha=0.6)
 
-ax2.plot(t, H, 'r-', linewidth=2, label='H(t)')
-ax2.axhline(y=5, color='gold', linestyle='--', label='Warning threshold')
-ax2.set_xlabel('Time t')
-ax2.set_ylabel('H(t)')
-ax2.set_title('Early warning signal H(t) - 1D Quintic NLS')
-ax2.legend()
-ax2.grid(True)
+ax2.plot(t, H, 'r-', linewidth=2.5, label=r'$H(t)$')
+ax2.axhline(y=5, color='gold', linestyle='--', linewidth=2, label='Threshold')
+ax2.fill_between(t, 0, H, where=(H>=5), color='red', alpha=0.2, label='Early warning zone')
+ax2.set_xlabel('Time t', fontsize=12)
+ax2.set_ylabel(r'$H(t)$', fontsize=12)
+ax2.set_title('Early warning signal H(t) - 1D Quintic NLS', fontsize=14)
+ax2.legend(loc='upper left')
+ax2.grid(True, linestyle='--', alpha=0.6)
 
 plt.tight_layout()
-plt.savefig('quintic_nls_H.png', dpi=150)
+plt.savefig('quintic_nls_H_new.png', dpi=200)
 plt.show()
-print("Image saved as quintic_nls_H.png")
+print("New image saved: quintic_nls_H_new.png")
